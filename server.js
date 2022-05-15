@@ -1,3 +1,6 @@
+const MultiplayerSubsystemServer =
+  require("./src/utils/MultiplayerSubsystemServer").MultiplayerSubsystemServer;
+
 const express = require("express");
 const port = 3000;
 const app = express();
@@ -21,28 +24,5 @@ function listen() {
   console.log("App listening at http://localhost:" + port);
 }
 
-const io = require("socket.io")(server, {
-  cors: {
-    origin: "http://localhost:3000",
-    methods: ["GET", "POST"],
-    transports: ["websocket", "polling"],
-    credentials: true,
-  },
-  allowEIO3: true,
-});
-
-io.sockets.on("connection", function (socket) {
-  console.log("We have a new client: " + socket.id);
-
-  socket.on("mouse", function (data) {
-    console.log("Received: 'mouse' " + data.x + " " + data.y);
-    socket.broadcast.emit("mouse", data);
-  });
-
-  socket.on("msg", function (msg) {
-    socket.broadcast.emit("msg", msg);
-  });
-  socket.on("disconnect", function () {
-    console.log("Client has disconnected");
-  });
-});
+let MultiplayerSubsystemServerHandler = new MultiplayerSubsystemServer(server);
+MultiplayerSubsystemServerHandler.listen();

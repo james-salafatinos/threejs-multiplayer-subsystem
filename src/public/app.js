@@ -6,12 +6,10 @@ import { CSS3DRenderer, CSS3DObject } from "/modules/CSS3DRenderer.js";
 import { NoClipControls } from "/utils/NoClipControls.js";
 import { PhysicsObject } from "/utils/PhysicsObject.js";
 import { TerrainGenerator } from "/utils/TerrainGenerator.js";
-// import { SoundStation } from "/utils/SoundStation.js";
-// import { Collisions } from "/utils/Collisions.js";
 import { ParticleSystem } from "/utils/ParticleSystem.js";
+//CDN
 import { io } from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js";
-// Start a socket connection to the server
-// Some day we would run this server somewhere else
+import { MultiplayerSubsystemClient } from "../utils/MultiplayerSubsystemClient.js";
 
 //THREE JS
 let camera, scene, renderer, composer, controls;
@@ -31,7 +29,7 @@ let AL;
 let PS;
 let SKYDOME;
 let label_meshes = [];
-
+let MultiplayerSubsystemClientHandler;
 let sendmouse;
 var socket;
 
@@ -40,10 +38,6 @@ init();
 animate();
 
 function init() {
-  //   scene = new THREE.Scene();
-  //   var loader = new THREE.TextureLoader(),
-  //     texture = loader.load("/static/nightsky2.jpg");
-  //   scene.background = texture;
   scene = new THREE.Scene();
   scene.background = new THREE.Color().setHSL(0.6, 0.9, 0.9);
   scene.fog = new THREE.Fog(0xffffff, 1, 5000);
@@ -66,11 +60,6 @@ function init() {
   document.body.appendChild(labelRenderer.domElement);
 
   //   LIGHTS;
-  //   const light = new THREE.HemisphereLight(0xeeeeff, 0x777788, 0.75);
-  //   light.position.set(0.5, 1, 0.75);
-  //   scene.add(light);
-  //   scene.add(new THREE.AmbientLight(0x404040));
-
   let dirLight = new THREE.DirectionalLight(0xffffff, 1);
   dirLight.position.set(0, 500, 0);
   dirLight.castShadow = true;
@@ -83,10 +72,10 @@ function init() {
   dirLight.shadow.camera.near = 0.5; // default
   dirLight.shadow.camera.far = 10000; // default
 
-  scene.add(dirLight);
-
   const dirLightHelper = new THREE.DirectionalLightHelper(dirLight, 10);
   scene.add(dirLightHelper);
+
+  scene.add(dirLight);
 
   //Camera
   camera = new THREE.PerspectiveCamera(
@@ -99,45 +88,34 @@ function init() {
   camera.position.z = 120;
   camera.position.x = 0;
 
-  //NO CLIP CONTROLS
-  controls = new NoClipControls(scene, window, camera, document);
-  //   controls.attach()
-
   cameraLookDir = function (camera) {
     var vector = new THREE.Vector3(0, 0, -1);
     vector.applyEuler(camera.rotation, camera.rotation.order);
     return vector;
   };
 
-  // Start a socket connection to the server
-  // Some day we would run this server somewhere else
-  socket = io.connect("http://localhost:3000");
+  //NO CLIP CONTROLS
+  controls = new NoClipControls(scene, window, camera, document);
 
-  // We make a named event called 'mouse' and write an
-  // anonymous callback function
-  socket.on(
-    "mouse",
-    // When we receive data
-    function (data) {
-      console.log("mouse: " + data.x + " " + data.y + " " + data.z);
+  MultiplayerSubsystemClientHandler = new MultiplayerSubsystemClient(io);
 
-      if (players.length == 0) {
-        otherPlayer = createPlayer(data.x, data.y, data.z);
-        scene.add(otherPlayer);
-      }
-
-      otherPlayer.position.x = data.x;
-      otherPlayer.position.y = data.y;
-      otherPlayer.position.z = data.z;
-    }
-  );
-  socket.on(
-    "msg",
-    // When we receive data
-    function (data) {
-      console.log("msg:", data);
-    }
-  );
+  //   socket = io.connect("http://localhost:3000");
+  //   socket.on(
+  //     "MouseFromServer",
+  //     // When we receive data
+  //     function (data) {
+  //       console.log(
+  //         "MouseFromServerReceived: " + data.x + " " + data.y + " " + data.z
+  //       );
+  //     }
+  //   );
+  //   socket.on(
+  //     "msg",
+  //     // When we receive data
+  //     function (data) {
+  //       console.log("MsgFromServerReceived:", data);
+  //     }
+  //   );
 
   function mouseDragged() {
     //Crosshair
@@ -156,7 +134,7 @@ function init() {
   // Function for sending to the socket
   sendmouse = function (xpos, ypos, zpos) {
     // We are sending!
-    console.log("sendmouse: " + xpos + " " + ypos + " " + zpos);
+    console.log("sendmouse()FromClient: " + xpos + " " + ypos + " " + zpos);
 
     // Make a little object with  and y
     var data = {
@@ -166,7 +144,8 @@ function init() {
     };
 
     // Send that object to the socket
-    socket.emit("mouse", data);
+    // socket.emit("MouseFromClient", data);
+    MultiplayerSubsystemClientHandler.emit("MouseFromClient", data);
   };
 
   let createStars = function () {
