@@ -10,7 +10,7 @@ import { ParticleSystem } from "/utils/ParticleSystem.js";
 //CDN
 import { io } from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js";
 import { MultiplayerSubsystemClient } from "../utils/MultiplayerSubsystemClient.js";
-
+import { MultiplayerGameInterface } from "../utils/MultiplayerGameInterface.js";
 //THREE JS
 let camera, scene, renderer, composer, controls;
 let stats;
@@ -29,9 +29,16 @@ let AL;
 let PS;
 let SKYDOME;
 let label_meshes = [];
+
 let MultiplayerSubsystemClientHandler;
+let MultiplayerGameInterfaceHandler;
+
 let sendmouse;
 var socket;
+
+let player;
+let players = [];
+let otherPlayer;
 
 let MAP = new THREE.TextureLoader();
 init();
@@ -98,25 +105,8 @@ function init() {
   controls = new NoClipControls(scene, window, camera, document);
 
   MultiplayerSubsystemClientHandler = new MultiplayerSubsystemClient(io);
-
-  //   socket = io.connect("http://localhost:3000");
-  //   socket.on(
-  //     "MouseFromServer",
-  //     // When we receive data
-  //     function (data) {
-  //       console.log(
-  //         "MouseFromServerReceived: " + data.x + " " + data.y + " " + data.z
-  //       );
-  //     }
-  //   );
-  //   socket.on(
-  //     "msg",
-  //     // When we receive data
-  //     function (data) {
-  //       console.log("MsgFromServerReceived:", data);
-  //     }
-  //   );
-
+  MultiplayerGameInterfaceHandler = new MultiplayerGameInterface(scene, camera);
+  MultiplayerGameInterfaceHandler.createPlayer();
   function mouseDragged() {
     //Crosshair
     cameraLookDir = function (camera) {
@@ -330,6 +320,14 @@ function animate() {
   //   if (frameIndex % 5 == 0) {
   //     collisions.checkCollisions();
   //   }
+
+  if (frameIndex % 200 == 0) {
+    MultiplayerGameInterfaceHandler.updatePlayerState();
+    MultiplayerSubsystemClientHandler.emit(
+      "PlayerState",
+      MultiplayerGameInterfaceHandler.playerState
+    );
+  }
 
   PS.updateParticles();
 

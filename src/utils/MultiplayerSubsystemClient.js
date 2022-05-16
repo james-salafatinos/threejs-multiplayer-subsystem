@@ -19,6 +19,14 @@ class MultiplayerSubsystemClient {
         console.log("MsgFromServerReceived:", data);
       }
     );
+
+    this.socket.on(
+      "PlayerStateFromServer",
+      // When we receive data
+      function (data) {
+        console.log("Player State From Server Received:", data);
+      }
+    );
   }
 
   emit(name, data) {
