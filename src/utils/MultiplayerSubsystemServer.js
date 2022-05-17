@@ -1,5 +1,6 @@
 class MultiplayerSubsystemServer {
   constructor(server) {
+    this.gameState = {};
     this.io = require("socket.io")(server, {
       cors: {
         origin: "http://localhost:3000",
@@ -11,27 +12,30 @@ class MultiplayerSubsystemServer {
     });
   }
   listen() {
+    let parent = this;
+
     this.io.sockets.on("connection", function (socket) {
       console.log("We have a new client: " + socket.id);
+
       socket.broadcast.emit(`handshake`, socket.id);
-
-      socket.on("MouseFromClient", function (data) {
-        console.log("Received: 'MouseFromClient' " + data.x + " " + data.y);
-
-        //parseMouseFromClientToMouseFromServer{
-        //WORK WORK WORK on MouseFromClient
-        //}
-        socket.broadcast.emit("MouseFromServer", data);
-      });
-
-      socket.on("MsgFromClient", function (msg) {
-        socket.broadcast.emit("MsgFromServer", msg);
-      });
 
       socket.on("PlayerState", function (data) {
         if (data != null) {
-          console.log("Received: 'PlayerState'", data);
-          socket.broadcast.emit(`PlayerStateFromServer ${socket.id}`, data);
+          // console.log("Received: 'PlayerState'", data);
+
+          if (data.socket_id != undefined) {
+            parent.gameState[data.socket_id] = {
+              x: data.x,
+              y: data.y,
+              z: data.z,
+            };
+          }
+
+          console.log(parent.gameState);
+          socket.broadcast.emit(`PlayerPositions`, parent.gameState);
+
+          //   //Handshake
+          //   socket.broadcast.emit(`PlayerStateFromServer`, socket.id);
         }
       });
 

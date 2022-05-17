@@ -105,8 +105,13 @@ function init() {
   controls = new NoClipControls(scene, window, camera, document);
 
   MultiplayerSubsystemClientHandler = new MultiplayerSubsystemClient(io);
-  MultiplayerGameInterfaceHandler = new MultiplayerGameInterface(scene, camera);
+  MultiplayerGameInterfaceHandler = new MultiplayerGameInterface(
+    scene,
+    camera,
+    MultiplayerSubsystemClientHandler
+  );
   MultiplayerGameInterfaceHandler.createPlayer();
+
   function mouseDragged() {
     //Crosshair
     cameraLookDir = function (camera) {
@@ -321,7 +326,7 @@ function animate() {
   //     collisions.checkCollisions();
   //   }
 
-  if (frameIndex % 200 == 0) {
+  if (frameIndex % 20 == 0) {
     MultiplayerGameInterfaceHandler.updatePlayerState();
     MultiplayerSubsystemClientHandler.emit(
       "PlayerState",
@@ -329,7 +334,7 @@ function animate() {
     );
   }
 
-  PS.updateParticles();
+  // PS.updateParticles();
 
   if (frameIndex % 500 == 0) {
     for (let i = 0; i < label_meshes.length; i++) {
