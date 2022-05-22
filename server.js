@@ -2,7 +2,7 @@ const MultiplayerSubsystemServer =
   require("./src/utils/MultiplayerSubsystemServer").MultiplayerSubsystemServer;
 
 const express = require("express");
-const port = 3000;
+const port = 8080;
 const app = express();
 const path = require("path");
 const httpServer = require("http").createServer();
