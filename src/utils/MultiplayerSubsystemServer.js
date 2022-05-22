@@ -3,7 +3,7 @@ class MultiplayerSubsystemServer {
     this.gameState = {};
     this.io = require("socket.io")(server, {
       cors: {
-        origin: "http://localhost:3000",
+        origin: "https://multiplayer-xpzpk.ondigitalocean.app/",
         methods: ["GET", "POST"],
         transports: ["websocket", "polling"],
         credentials: true,
