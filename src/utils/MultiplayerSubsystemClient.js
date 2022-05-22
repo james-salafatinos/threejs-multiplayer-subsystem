@@ -3,19 +3,9 @@ class MultiplayerSubsystemClient {
     this.io = io;
     this.socket = this.io.connect("http://localhost:3000");
     this.gameState = null;
+    this.disconnected_ids = [];
+    this.LastGameState = null;
     var parent = this;
-    // this.socket_id;
-
-    // this.socket.on(
-    //   "MouseFromServer",
-    //   // When we receive data
-    //   function (data) {
-    //     console.log(
-    //       "MouseFromServerReceived: " + data.x + " " + data.y + " " + data.z
-    //     );
-    //   }
-    // );
-
     this.socket.on(
       "handshake",
       // When we receive data
@@ -29,8 +19,23 @@ class MultiplayerSubsystemClient {
       "PlayerPositions",
       // When we receive data
       function (data) {
-        console.log("Player Position Data From Server Received:", data);
+        // console.log("Player Position Data From Server Received:", data);
+        parent.LastGameState = parent.gameState;
         parent.gameState = data;
+      }
+    );
+
+    this.socket.on(
+      "PlayerDisconnect",
+      // When we receive data
+      function (disconnected_socket_id) {
+        console.log(
+          "Player Disconnect Data From Server Received:",
+          disconnected_socket_id
+        );
+        parent.disconnected_ids.push(disconnected_socket_id);
+        console.log("parent IDS", parent.disconnected_ids);
+        delete parent.gameState[disconnected_socket_id];
       }
     );
   }

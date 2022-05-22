@@ -28,10 +28,11 @@ class MultiplayerSubsystemServer {
               x: data.x,
               y: data.y,
               z: data.z,
+              cameraLookVec: data.cameraLookVec,
             };
           }
 
-          console.log(parent.gameState);
+          // console.log(parent.gameState);
           socket.broadcast.emit(`PlayerPositions`, parent.gameState);
 
           //   //Handshake
@@ -41,6 +42,11 @@ class MultiplayerSubsystemServer {
 
       socket.on("disconnect", function () {
         console.log("Client ", socket.id, " has disconnected");
+        // console.log(parent.gameState);
+        socket.broadcast.emit(`PlayerDisconnect`, socket.id);
+        // console.log(parent.gameState[socket.id]);
+        delete parent.gameState[socket.id];
+        console.log("Client ", socket.id, " has been deleted from gameState");
       });
     });
   }

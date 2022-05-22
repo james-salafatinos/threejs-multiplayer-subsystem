@@ -1,12 +1,9 @@
 //External Libraries
 import * as THREE from "/modules/three.module.js";
 import Stats from "/modules/stats.module.js";
-import { CSS3DRenderer, CSS3DObject } from "/modules/CSS3DRenderer.js";
 //Internal Libraries
 import { NoClipControls } from "/utils/NoClipControls.js";
-import { PhysicsObject } from "/utils/PhysicsObject.js";
 import { TerrainGenerator } from "/utils/TerrainGenerator.js";
-import { ParticleSystem } from "/utils/ParticleSystem.js";
 //CDN
 import { io } from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js";
 import { MultiplayerSubsystemClient } from "../utils/MultiplayerSubsystemClient.js";
@@ -60,12 +57,6 @@ function init() {
   renderer.shadowMap.enabled = true;
   document.body.appendChild(renderer.domElement);
 
-  labelRenderer = new CSS3DRenderer();
-  labelRenderer.setSize(window.innerWidth, window.innerHeight);
-  labelRenderer.domElement.style.position = "absolute";
-  labelRenderer.domElement.style.top = "0px";
-  document.body.appendChild(labelRenderer.domElement);
-
   //   LIGHTS;
   let dirLight = new THREE.DirectionalLight(0xffffff, 1);
   dirLight.position.set(0, 500, 0);
@@ -110,7 +101,6 @@ function init() {
     camera,
     MultiplayerSubsystemClientHandler
   );
-  MultiplayerGameInterfaceHandler.createPlayer();
 
   function mouseDragged() {
     //Crosshair
@@ -129,7 +119,7 @@ function init() {
   // Function for sending to the socket
   sendmouse = function (xpos, ypos, zpos) {
     // We are sending!
-    console.log("sendmouse()FromClient: " + xpos + " " + ypos + " " + zpos);
+    // console.log("sendmouse()FromClient: " + xpos + " " + ypos + " " + zpos);
 
     // Make a little object with  and y
     var data = {
@@ -144,11 +134,9 @@ function init() {
   };
 
   let createStars = function () {
-    let M = 32;
-    let N = 32;
-    let scaler = 10;
+    let M = 48;
+    let N = 48;
     let vertices = [];
-    let spacing_scale = 50;
     for (let x = -M; x <= M; x += 1) {
       for (let z = -N; z <= N; z += 1) {
         // vertices.push(x / scaler, 0 / scaler, z / scaler)
@@ -177,24 +165,6 @@ function init() {
   };
   createStars();
 
-  let loadImage = function (url, x, y, z, r) {
-    var texture = MAP.load(`/static/${url}`);
-    var material = new THREE.SpriteMaterial({
-      map: texture,
-      color: 0xffffff,
-      depthWrite: true,
-      depthTest: true,
-    });
-    var sprite = new THREE.Sprite(material);
-    sprite.geometry.scale(r, r);
-    sprite.position.x = x;
-    sprite.position.y = y;
-    sprite.position.z = z;
-
-    console.log(sprite);
-    scene.add(sprite);
-  };
-
   window.addEventListener("mousemove", () => {
     mouseDragged(3, 2, 5);
     // sendmouse();
@@ -205,66 +175,6 @@ function init() {
   let terrain = new TerrainGenerator(scene);
   terrain.create();
   console.log(terrain);
-
-  PS = new ParticleSystem(scene);
-  PS.createParticles();
-
-  let M = 3;
-  let N = 3;
-  let increment = 0;
-  for (let x = -M; x <= M; x += 1) {
-    for (let z = -N; z <= N; z += 1) {
-      let choose = function () {
-        if (Math.random() > 0.5) {
-          return "POC1";
-        } else {
-          return "POC2";
-        }
-      };
-
-      //   let ss = new SoundStation(scene, choose(), label_meshes);
-      //   let ssx = THREE.MathUtils.randFloatSpread(2000);
-      //   let ssy = 105 + THREE.MathUtils.randFloatSpread(5);
-      //   let ssz = THREE.MathUtils.randFloatSpread(2000);
-      //   ss.createCylinder(ssx, ssy, ssz, 0);
-      //   SS_Array.push(ss);
-    }
-    increment++;
-  }
-
-  //Large Star
-
-  //   collisions = new Collisions(scene, camera, SS_Array, PS);
-  //   console.log("Checking collision!");
-
-  let createSphere = function (_x, _y, _z, _rotation) {
-    let mat = new THREE.MeshPhongMaterial({
-      wireframe: false,
-      transparent: false,
-
-      color: new THREE.Color(0x201a40),
-      //   opacity: 0.8,
-    });
-    let geo = new THREE.IcosahedronGeometry(50, 8);
-    let mesh = new THREE.Mesh(geo, mat);
-    mesh.position.x = _x;
-    mesh.position.y = _y;
-    mesh.position.z = _z;
-    mesh.rotation.y = _rotation;
-    mesh.receiveShadow = true;
-
-    SKYDOME = mesh;
-    scene.add(SKYDOME);
-  };
-
-  //Large Star
-  let p0 = new PhysicsObject(10000, 0, 250, 0, 0, 0, 0, 0, 1);
-  p0.isStationary = true;
-  p0.density = 1000000;
-  physicsObjects.push(p0);
-  scene.add(p0.Sphere());
-
-  createSphere(0, 250, 0, 0);
 
   updatePositionForCamera = function (camera, myObject3D) {
     // fixed distance from camera to the object
@@ -279,46 +189,11 @@ function init() {
     myObject3D.position.set(cwd.x, cwd.y, cwd.z);
     myObject3D.setRotationFromQuaternion(camera.quaternion);
   };
-
-  //Object creation loop
-  for (let i = 0; i < 10; i++) {
-    let radius = 50;
-    let x_offset = 190;
-    let y_offset = 250;
-    let z_offset = 15;
-    let px = x_offset + (2 * Math.random() - 1) * radius;
-    let py = y_offset + ((2 * Math.random() - 1) * radius) / 2;
-    let pz = z_offset + (2 * Math.random() - 1) * radius;
-    let physicsObject = new PhysicsObject(1, px, py, pz, 0, 0, 0, 0.05, 1);
-
-    physicsObjects.push(physicsObject);
-    scene.add(physicsObject.Sphere());
-  }
-
-  console.log(physicsObjects);
 }
 
 function animate() {
   //Frame Start up
   requestAnimationFrame(animate);
-
-  //Force Application
-  if (frameIndex % 1 == 0) {
-    for (let i = 0; i < physicsObjects.length; i++) {
-      for (let j = 0; j < physicsObjects.length; j++) {
-        if (i !== j) {
-          let f = physicsObjects[i].attract(physicsObjects[j]);
-          physicsObjects[i].applyForce(f);
-          physicsObjects[i].updatePhysics();
-          physicsObjects[i].updateGeometry();
-        }
-      }
-    }
-    // for (let i = 0; i < SS_Array.length; i++) {
-    //   SS_Array[i].update();
-    //   // console.log(SS_Array)
-    // }
-  }
 
   const time = performance.now();
 
@@ -326,25 +201,19 @@ function animate() {
   //     collisions.checkCollisions();
   //   }
 
-  if (frameIndex % 20 == 0) {
+  if (frameIndex % 3 == 0) {
     MultiplayerGameInterfaceHandler.updatePlayerState();
     MultiplayerSubsystemClientHandler.emit(
       "PlayerState",
       MultiplayerGameInterfaceHandler.playerState
     );
-  }
-
-  // PS.updateParticles();
-
-  if (frameIndex % 500 == 0) {
-    for (let i = 0; i < label_meshes.length; i++) {
-      label_meshes[i].lookAt(camera.position);
-    }
+    // MultiplayerGameInterfaceHandler.updatePlayerMesh();
+    // MultiplayerGameInterfaceHandler.updateOtherPlayersMesh();
+    MultiplayerGameInterfaceHandler.CheckForNewPlayersAndAddThemOrUpdatePositions();
   }
 
   controls.update(time, prevTime);
   renderer.render(scene, camera);
-  labelRenderer.render(scene, camera);
   stats.update();
 
   //Frame Shut Down
