@@ -5,7 +5,8 @@ import Stats from "/modules/stats.module.js";
 import { NoClipControls } from "/utils/NoClipControls.js";
 import { TerrainGenerator } from "/utils/TerrainGenerator.js";
 //CDN
-import { io } from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js";
+// import { io } from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js";
+import { io } from "https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.esm.min.js";
 import { MultiplayerSubsystemClient } from "../utils/MultiplayerSubsystemClient.js";
 import { MultiplayerGameInterface } from "../utils/MultiplayerGameInterface.js";
 //THREE JS
