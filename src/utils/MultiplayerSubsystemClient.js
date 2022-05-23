@@ -2,8 +2,9 @@ class MultiplayerSubsystemClient {
   constructor(io) {
     this.io = io;
     this.socket = this.io.connect(
-      "https://multiplayer-xpzpk.ondigitalocean.app/"
+      // "https://multiplayer-xpzpk.ondigitalocean.app/"
       // "http://localhost:8080/"
+      window.location.href
     );
     this.gameState = null;
     this.disconnected_ids = [];

@@ -1,12 +1,7 @@
 import * as THREE from "/modules/three.module.js";
 
 class MultiplayerGameInterface {
-  constructor(
-    scene,
-    camera,
-    MultiplayerSubsystemClientHandler,
-    MultiplayerPlayer
-  ) {
+  constructor(scene, camera, MultiplayerSubsystemClientHandler) {
     this.scene = scene;
     this.camera = camera;
     this.MultiplayerSubsystemClientHandler = MultiplayerSubsystemClientHandler;

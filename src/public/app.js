@@ -9,6 +9,8 @@ import { TerrainGenerator } from "/utils/TerrainGenerator.js";
 import { io } from "https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.esm.min.js";
 import { MultiplayerSubsystemClient } from "../utils/MultiplayerSubsystemClient.js";
 import { MultiplayerGameInterface } from "../utils/MultiplayerGameInterface.js";
+import { MultiplayerText } from "../utils/MultiplayerText.js";
+
 //THREE JS
 let camera, scene, renderer, composer, controls;
 let stats;
@@ -30,6 +32,7 @@ let label_meshes = [];
 
 let MultiplayerSubsystemClientHandler;
 let MultiplayerGameInterfaceHandler;
+let MultiplayerTextHandler;
 
 let sendmouse;
 var socket;
@@ -102,6 +105,12 @@ function init() {
     camera,
     MultiplayerSubsystemClientHandler
   );
+  MultiplayerTextHandler = new MultiplayerText(
+    window,
+    scene,
+    camera,
+    MultiplayerSubsystemClientHandler
+  );
 
   function mouseDragged() {
     //Crosshair
@@ -167,6 +176,11 @@ function init() {
   createStars();
 
   window.addEventListener("mousemove", () => {
+    mouseDragged(3, 2, 5);
+    // sendmouse();
+  });
+
+  window.addEventListener("KeyT", () => {
     mouseDragged(3, 2, 5);
     // sendmouse();
   });

@@ -1,6 +1,7 @@
 const MultiplayerSubsystemServer =
   require("./src/utils/MultiplayerSubsystemServer").MultiplayerSubsystemServer;
-
+require("dotenv").config();
+console.log(process.env.ENVIRONMENT); // remove this after you've confirmed it working
 const express = require("express");
 const port = 8080;
 const app = express();
